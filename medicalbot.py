@@ -8,20 +8,13 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 st.header("HealthCare - Chatbot")
-
-# List available models in the Google Generative AI API
-models = genai.list_models()
-
-# Print available models to check what models are available
-for model in models:
-    print(model)
-# Initialize chat session with PaLM model (assuming the model name is 'palm')
-    model = genai.GenerativeModel()  # Use the correct model name (check for availability)
-    chat = model.start_chat(history=[])
+model = genai.GenerativeModel("gemini-1.5-flash")
+# Initialize chat session with the 'gemini-1.5-flash' model using the correct method
+chat = genai.ChatSession(model)  # Initialize chat with 'gemini-1.5-flash' model
 
 # Initialize session state for conversation history if not already initialized
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "Hello! Please describe your symptoms, and I will help identify possible causes."}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "Hi! I'm here to help. Please share your symptoms, and I'll assist in identifying possible causes and next steps."}]
 
 # Display chat messages
 for msg in st.session_state.messages:
@@ -32,17 +25,17 @@ if prompt := st.chat_input():
     # Add user's message to session history
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    # Construct healthcare-specific prompt with the user input
-    healthcare_prompt = f"""
-    You are a healthcare assistant. Your goal is to help users identify potential causes for their symptoms and give appropriate advice or recommendations.
+    
+    # Simulate a healthcare-specific prompt before sending the user input
+    healthcare_prompt = f"""You are a healthcare assistant. Your goal is to help users identify potential causes for their symptoms and give appropriate advice or recommendations.
     Respond politely, empathetically, and responsibly. Always encourage users to seek a healthcare professional for a proper diagnosis.
     Here's the user's symptom description:
     {prompt}
 
-    Your response:
-    """
-    # Get the response from PaLM API (for symptom identification)
-    response = chat.send_message(healthcare_prompt, stream=True)
+    Your response:"""
+
+    # Send the healthcare-specific prompt to the model
+    response = chat.send_message(healthcare_prompt)
     
     # Combine all chunks into the full response text
     bot_response = ''
